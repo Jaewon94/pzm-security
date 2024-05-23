@@ -1,10 +1,7 @@
 package com.jaewon.security.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
@@ -42,7 +39,7 @@ public class Customer {
     private List<Cart> carts;
 
     // 한명의 회원은 여러개의 권한(중복 X)을 가지고 있다.
-    @ManyToMany // M : N (다 : 다)
+    @ManyToMany(fetch = FetchType.LAZY) // M : N (다 : 다)
     @JoinTable(
             name = "member_roles",
             joinColumns = @JoinColumn(name = "customer_id"),

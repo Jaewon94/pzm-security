@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Bootstrap Example</title>
     <meta charset="utf-8">
@@ -15,7 +16,6 @@
     <h2>Spring Boot JPA & Security</h2>
     <div class="card">
         <div class="card-header d-flex justify-content-center align-items-center">
-            <h2>Login</h2>
             <div th:if="${error}" class="form-group mr-2">
                 <p style="color: red;">Login failed, Please try again.</p>
             </div>
@@ -23,7 +23,9 @@
                 <p style="color: red;">You have been logged out successfully.</p>
             </div>
             <!-- 로그인이 실패하거나 로그인이 안된 상태 -->
-            <form class="form-inline" th:action="@{/loginProcess}" method="post">
+            <form class="form-inline" th:action="@{/loginProcess}" method="post"
+                th:if="${not #authorization.expression('isAuthenticated()')}"
+            >
                 <div class="form-group mr-2">
                     <label for="username">Username:</label>
                     <input type="text" class="form-control" placeholder="Enter username" id="username" name="username">
@@ -34,13 +36,33 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Login</button>
             </form>
+
+            <!-- SpEL -->
+            <div class="mx-2" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/admin/list}" class="btn btn-sm btn-secondary">관리자 페이지</a>
+            </div>
+
+            <div class="mx-2" th:if="${#authorization.expression('hasAnyAuthority(''ROLE_ADMIN'',''ROLE_MANAGER'')')}">
+                <a th:href="@{/admin/list}" class="btn btn-sm btn-secondary">매니저/관리자 페이지</a>
+            </div>
+
+            <!-- Spring security 태그 라이브러리-->
+            <div class="mx-2" sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <a th:href="@{/admin/list}" class="btn btn-sm btn-secondary">매장관리</a>
+            </div>
+
             <div class="mx-2">
                 <a th:href="@{/member/memberRegister}" class="btn btn-sm btn-secondary">회원가입</a>
             </div>
-<!--            &lt;!&ndash; 로그인이 성공하면 &ndash;&gt;-->
-<!--            <form th:action="@{/logout}" method="post">-->
-<!--                <button type="submit">Logout</button>-->
-<!--            </form>-->
+            <!-- 로그인이 성공하면 -->
+            <form th:action="@{/logout}" method="post" class="form-inline"
+                  th:if="${#authorization.expression('isAuthenticated()')}">
+                <p>로그인 사용자: <span th:text="${#authentication.principal.customer.customerName}"></span></p>
+                <button type="submit" class="btn btn-primary btn-sm">Logout</button>
+                <ul>
+                    <li th:each="role : ${#authentication.authorities}" th:text="${role.authority}"></li>
+                </ul>
+            </form>
         </div>
         <div class="card-body">
             메인 화면 들어갈 자리

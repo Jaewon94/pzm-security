@@ -30,6 +30,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/")    // login page URL -> /login -> MainController -> view(index.html)
+                        // UsernamePasswordAuthenticationFilter ---> UserDetailsService(interface)
                         .loginProcessingUrl("/loginProcess")    // 스프링 시큐리티(URL 가로채기:username, password)에게 제어권을 넘긴다.
                         .defaultSuccessUrl("/")
                         .failureUrl("/?error=true")
